@@ -1,8 +1,7 @@
-const PlasmaClient = require('./src/client')
-const DummyProvider = require('./src/providers/dummy/dummy-provider')
+const plasma = require('./index')
 
-const provider = new DummyProvider()
-const client = new PlasmaClient(provider)
+const provider = new plasma.providers.DummyProvider()
+const client = new plasma.PlasmaClient(provider)
 
 client.getBlock(1).then((block) => {
   console.log(block)
