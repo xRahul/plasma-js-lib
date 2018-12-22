@@ -4,15 +4,19 @@ class PlasmaClient {
   }
 
   sign (transaction) {
-    throw Error('Not implemented')
+    return this.provider.handle('pg_sign', {
+      transaction: transaction
+    })
   }
 
   sendTransaction (transaction) {
-    throw Error('Not implemented')
+    return this.provider.handle('pg_sendTransaction', {
+      transaction: transaction
+    })
   }
 
   startExit () {
-    throw Error('Not implemented')
+    return this.provider.handle('pg_startExit')
   }
 
   getBalance (address) {
