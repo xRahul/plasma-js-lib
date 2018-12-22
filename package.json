@@ -1,0 +1,31 @@
+{
+  "name": "plasma-client",
+  "version": "0.0.1",
+  "description": "PG Plasma client library",
+  "main": "contentscript.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify contentscript.js -o bundle.js",
+    "lint": "./node_modules/.bin/eslint src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:plasma-group/plasma-client.git"
+  },
+  "keywords": [
+    "plasma"
+  ],
+  "author": "Plasma Group",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plasma-group/plasma-client/issues"
+  },
+  "devDependencies": {
+    "eslint": "^5.10.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
