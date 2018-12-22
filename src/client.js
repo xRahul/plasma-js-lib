@@ -1,8 +1,6 @@
-const ApiWrapper = require('./api-wrapper')
-
 class PlasmaClient {
   constructor (provider) {
-    this.api = new ApiWrapper(provider)
+    this.provider = provider
   }
 
   sign (transaction) {
@@ -18,13 +16,13 @@ class PlasmaClient {
   }
 
   getBalance (address) {
-    return this.api.get('balance', {
+    return this.provider.handle('balance', {
       address: address
     })
   }
 
   getHistory (range, start, end) {
-    return this.api.get('history', {
+    return this.provider.handle('history', {
       range: range,
       start: start,
       end: end
@@ -32,26 +30,26 @@ class PlasmaClient {
   }
 
   getBlock (number) {
-    return this.api.get('block', {
+    return this.provider.handle('block', {
       number: number
     })
   }
 
   getTransaction (hash) {
-    return this.api.get('transaction', {
+    return this.provider.handle('transaction', {
       hash: hash
     })
   }
 
   getBlocks (start, end) {
-    return this.api.get('blocks', {
+    return this.provider.handle('blocks', {
       start: start,
       end: end
     })
   }
 
   getTransactions () {
-    return this.api.get('transactions')
+    return this.provider.handle('transactions')
   }
 }
 
