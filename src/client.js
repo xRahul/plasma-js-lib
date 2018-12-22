@@ -16,13 +16,13 @@ class PlasmaClient {
   }
 
   getBalance (address) {
-    return this.provider.handle('balance', {
+    return this.provider.handle('pg_getBalance', {
       address: address
     })
   }
 
   getHistory (range, start, end) {
-    return this.provider.handle('history', {
+    return this.provider.handle('pg_getHistory', {
       range: range,
       start: start,
       end: end
@@ -30,26 +30,26 @@ class PlasmaClient {
   }
 
   getBlock (number) {
-    return this.provider.handle('block', {
+    return this.provider.handle('pg_getBlock', {
       number: number
     })
   }
 
   getTransaction (hash) {
-    return this.provider.handle('transaction', {
+    return this.provider.handle('pg_getTransaction', {
       hash: hash
     })
   }
 
   getBlocks (start, end) {
-    return this.provider.handle('blocks', {
+    return this.provider.handle('pg_getBlocks', {
       start: start,
       end: end
     })
   }
 
   getTransactions () {
-    return this.provider.handle('transactions')
+    return this.provider.handle('pg_getTransactions')
   }
 }
 

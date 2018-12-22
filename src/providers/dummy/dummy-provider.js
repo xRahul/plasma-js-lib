@@ -6,20 +6,20 @@ class DummyProvider {
       try {
         let res
         switch (method) {
-          case 'transaction':
+          case 'pg_getTransaction':
             res = dummy.DUMMY_TRANSCTIONS.find((tx) => {
               return tx.hash === data.hash
             })
             break
-          case 'block':
+          case 'pg_getBlock':
             res = dummy.DUMMY_BLOCKS.find((block) => {
               return block.number === data.number
             })
             break
-          case 'transactions':
+          case 'pg_getTransactions':
             res = dummy.DUMMY_TRANSCTIONS
             break
-          case 'blocks':
+          case 'pg_getBlocks':
             res = dummy.DUMMY_BLOCKS.filter((block) => {
               return block.number >= data.start && block.number <= data.end
             })
