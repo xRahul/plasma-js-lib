@@ -54,3 +54,12 @@ Run all tests with:
 ```
 $ npm test
 ```
+
+### Building
+We're using `gulp` to provide a process to build `plasma-js` for in-browser usage.
+
+If you'd like to build `plasma-js` yourself, simply run:
+
+```
+$ npm run build
+```
