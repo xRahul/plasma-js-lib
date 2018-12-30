@@ -5,7 +5,7 @@
   "main": "contentscript.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify contentscript.js -o bundle.js",
+    "build": "gulp",
     "lint": "./node_modules/.bin/eslint src/"
   },
   "repository": {
@@ -21,12 +21,20 @@
     "url": "https://github.com/plasma-group/plasma-client/issues"
   },
   "devDependencies": {
+    "browserify": "^16.2.3",
+    "del": "^3.0.0",
     "eslint": "^5.10.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "exorcist": "^1.0.1",
+    "gulp": "^4.0.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-streamify": "^1.0.2",
+    "gulp-uglify-es": "^1.0.4",
+    "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
     "axios": "^0.18.0"
