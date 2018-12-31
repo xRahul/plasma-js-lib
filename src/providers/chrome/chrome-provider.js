@@ -1,8 +1,10 @@
-const EXTENSION_ID = '?' // TODO: Set this once we have an extension ID
-
 class ChromeProvider {
+  constructor (options) {
+    this.options = options
+  }
+
   handle (method, data) {
-    chrome.runtime.sendMessage(EXTENSION_ID, {
+    chrome.runtime.sendMessage(this.options.extensionId, {
       jsonrpc: '2.0',
       method: method,
       params: data
