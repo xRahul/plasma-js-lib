@@ -9,20 +9,20 @@ class PlasmaClient {
     })
   }
 
-  sendTransaction (transaction) {
-    return this.provider.handle('pg_sendTransaction', {
-      transaction: transaction
-    })
+  async sendTransaction (transaction) {
+    return this.provider.handle('pg_sendTransaction', [transaction])
   }
 
   startExit () {
     return this.provider.handle('pg_startExit')
   }
 
-  getBalance (address) {
-    return this.provider.handle('pg_getBalance', {
-      address: address
-    })
+  async getAccounts () {
+    return this.provider.handle('pg_getAccounts')
+  }
+
+  async getBalances (address) {
+    return this.provider.handle('pg_getBalances', [address])
   }
 
   getHistory (range, start, end) {
@@ -39,10 +39,8 @@ class PlasmaClient {
     })
   }
 
-  getTransaction (hash) {
-    return this.provider.handle('pg_getTransaction', {
-      hash: hash
-    })
+  async getTransaction (hash) {
+    return this.provider.handle('pg_getTransaction', [hash])
   }
 
   getBlocks (start, end) {

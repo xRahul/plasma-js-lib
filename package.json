@@ -1,5 +1,5 @@
 {
-  "name": "plasma-js",
+  "name": "plasma-js-lib",
   "version": "0.0.1",
   "description": "PG Plasma JS client library",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:plasma-group/plasma-js.git"
+    "url": "git@github.com:plasma-group/plasma-js-lib.git"
   },
   "keywords": [
     "plasma"
@@ -18,7 +18,7 @@
   "author": "Plasma Group",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/plasma-group/plasma-js/issues"
+    "url": "https://github.com/plasma-group/plasma-js-lib/issues"
   },
   "devDependencies": {
     "browserify": "^16.2.3",
@@ -37,6 +37,7 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "uuid": "^3.3.2"
   }
 }

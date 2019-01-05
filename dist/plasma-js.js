@@ -2,12 +2,11 @@
 const PlasmaClient = require('./src/client')
 const providers = require('./src/providers/index')
 
-module.exports = {
-  PlasmaClient,
-  providers
-}
+PlasmaClient.providers = providers
 
-},{"./src/client":29,"./src/providers/index":34}],2:[function(require,module,exports){
+module.exports = PlasmaClient
+
+},{"./src/client":32,"./src/providers/index":37}],2:[function(require,module,exports){
 module.exports = require('./lib/axios');
 },{"./lib/axios":4}],3:[function(require,module,exports){
 (function (process){
@@ -1641,6 +1640,99 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],29:[function(require,module,exports){
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+module.exports = bytesToUuid;
+
+},{}],30:[function(require,module,exports){
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto
+// implementation. Also, find the complete implementation of crypto on IE11.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+},{}],31:[function(require,module,exports){
+var rng = require('./lib/rng');
+var bytesToUuid = require('./lib/bytesToUuid');
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof(options) == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
+  }
+  options = options || {};
+
+  var rnds = options.random || (options.rng || rng)();
+
+  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+  // Copy bytes to buffer, if provided
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || bytesToUuid(rnds);
+}
+
+module.exports = v4;
+
+},{"./lib/bytesToUuid":29,"./lib/rng":30}],32:[function(require,module,exports){
 class PlasmaClient {
   constructor (provider) {
     this.provider = provider
@@ -1652,20 +1744,20 @@ class PlasmaClient {
     })
   }
 
-  sendTransaction (transaction) {
-    return this.provider.handle('pg_sendTransaction', {
-      transaction: transaction
-    })
+  async sendTransaction (transaction) {
+    return this.provider.handle('pg_sendTransaction', [transaction])
   }
 
   startExit () {
     return this.provider.handle('pg_startExit')
   }
 
-  getBalance (address) {
-    return this.provider.handle('pg_getBalance', {
-      address: address
-    })
+  async getAccounts () {
+    return this.provider.handle('pg_getAccounts')
+  }
+
+  async getBalances (address) {
+    return this.provider.handle('pg_getBalances', [address])
   }
 
   getHistory (range, start, end) {
@@ -1682,10 +1774,8 @@ class PlasmaClient {
     })
   }
 
-  getTransaction (hash) {
-    return this.provider.handle('pg_getTransaction', {
-      hash: hash
-    })
+  async getTransaction (hash) {
+    return this.provider.handle('pg_getTransaction', [hash])
   }
 
   getBlocks (start, end) {
@@ -1702,12 +1792,14 @@ class PlasmaClient {
 
 module.exports = PlasmaClient
 
-},{}],30:[function(require,module,exports){
-const EXTENSION_ID = '?' // TODO: Set this once we have an extension ID
-
+},{}],33:[function(require,module,exports){
 class ChromeProvider {
+  constructor (options) {
+    this.options = options
+  }
+
   handle (method, data) {
-    chrome.runtime.sendMessage(EXTENSION_ID, {
+    chrome.runtime.sendMessage(this.options.extensionId, {
       jsonrpc: '2.0',
       method: method,
       params: data
@@ -1717,7 +1809,7 @@ class ChromeProvider {
 
 module.exports = ChromeProvider
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 const dummy = require('./dummy')
 
 class DummyProvider {
@@ -1755,7 +1847,7 @@ class DummyProvider {
 
 module.exports = DummyProvider
 
-},{"./dummy":32}],32:[function(require,module,exports){
+},{"./dummy":35}],35:[function(require,module,exports){
 const DUMMY_TRANSCTIONS = [
   {
     value: false,
@@ -1836,28 +1928,35 @@ module.exports = {
   DUMMY_BLOCKS
 }
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 const axios = require('axios')
+const uuidv4 = require('uuid/v4')
 
 class HttpProvider {
-  constructor () {
+  constructor (url) {
     this.http = axios.create({
-      baseURL: 'http://localhost:9229'
+      baseURL: url
     })
   }
 
-  handle (method, data) {
-    return this.http.post('/', {
+  async handle (method, params) {
+    const rawResponse = await this.http.post('/', {
       jsonrpc: '2.0',
       method: method,
-      params: data
+      params: params,
+      id: uuidv4()
     })
+    const response = JSON.parse(rawResponse.data)
+    if (response.error) {
+      throw response.error
+    }
+    return response.result
   }
 }
 
 module.exports = HttpProvider
 
-},{"axios":2}],34:[function(require,module,exports){
+},{"axios":2,"uuid/v4":31}],37:[function(require,module,exports){
 const DummyProvider = require('./dummy/dummy-provider')
 const HttpProvider = require('./http/http-provider')
 const ChromeProvider = require('./chrome/chrome-provider')
@@ -1868,5 +1967,5 @@ module.exports = {
   ChromeProvider
 }
 
-},{"./chrome/chrome-provider":30,"./dummy/dummy-provider":31,"./http/http-provider":33}]},{},[1])
+},{"./chrome/chrome-provider":33,"./dummy/dummy-provider":34,"./http/http-provider":36}]},{},[1])
 //# sourceMappingURL=plasma-js.js.map

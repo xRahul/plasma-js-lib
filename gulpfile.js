@@ -10,7 +10,7 @@ const rename = require('gulp-rename')
 const streamify = require('gulp-streamify')
 
 const DEST = path.join(__dirname, 'dist/')
-const OUT = 'plasma-js'
+const OUT = 'plasma-js-lib'
 
 gulp.task('clean', (done) => {
   del(DEST).then(done)
