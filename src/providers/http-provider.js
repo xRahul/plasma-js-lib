@@ -1,11 +1,21 @@
 const axios = require('axios')
 const uuidv4 = require('uuid/v4')
 
-class HttpProvider {
-  constructor (url) {
+const BaseProvider = require('./base-provider')
+
+/**
+ * Provides communication with nodes that expose a JSON-RPC interface over HTTP.
+ */
+class HttpProvider extends BaseProvider {
+  constructor (options = {}) {
+    super(options)
     this.http = axios.create({
-      baseURL: url
+      baseURL: options.url || 'http://localhost:9898'
     })
+  }
+
+  get name () {
+    return 'http'
   }
 
   async handle (method, params) {

@@ -1,57 +1,46 @@
+const DefaultProvider = require('./providers').DefaultProvider
+
+/**
+ * Acts as a nice wrapper for available JSON-RPC providers.
+ */
 class PlasmaClient {
-  constructor (provider) {
+  constructor (provider = new DefaultProvider()) {
     this.provider = provider
   }
 
-  sign (transaction) {
-    return this.provider.handle('pg_sign', {
-      transaction: transaction
-    })
-  }
-
+  /**
+   * Sends a transaction to the client.
+   * @param {*} transaction A transaction object.
+   * @return {string} The transaction receipt.
+   */
   async sendTransaction (transaction) {
     return this.provider.handle('pg_sendTransaction', [transaction])
   }
 
-  startExit () {
-    return this.provider.handle('pg_startExit')
-  }
-
+  /**
+   * Returns all available accounts.
+   * @return {[string]} A list of available account addresses.
+   */
   async getAccounts () {
     return this.provider.handle('pg_getAccounts')
   }
 
+  /**
+   * Returns the balances of an account.
+   * @param {*} address Address of the account to query.
+   * @return {*} A list of account balances.
+   */
   async getBalances (address) {
     return this.provider.handle('pg_getBalances', [address])
   }
 
-  getHistory (range, start, end) {
-    return this.provider.handle('pg_getHistory', {
-      range: range,
-      start: start,
-      end: end
-    })
-  }
-
-  getBlock (number) {
-    return this.provider.handle('pg_getBlock', {
-      number: number
-    })
-  }
-
+  /**
+   * Returns a transaction with the given hash.
+   * @param {*} hash Hash of the transaction to query.
+   * @return {*} The transaction object.
+   */
   async getTransaction (hash) {
     return this.provider.handle('pg_getTransaction', [hash])
-  }
-
-  getBlocks (start, end) {
-    return this.provider.handle('pg_getBlocks', {
-      start: start,
-      end: end
-    })
-  }
-
-  getTransactions () {
-    return this.provider.handle('pg_getTransactions')
   }
 }
 

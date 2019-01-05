@@ -1,7 +1,15 @@
-const dummy = require('./dummy')
+const BaseProvider = require('./base-provider')
+const dummy = require('../dummy/dummy-data')
 
-class DummyProvider {
-  handle (method, data) {
+/**
+ * Provides dummy results for local testing.
+ */
+class DummyProvider extends BaseProvider {
+  get name () {
+    return 'dummy'
+  }
+
+  async handle (method, data) {
     return new Promise((resolve, reject) => {
       try {
         let res
